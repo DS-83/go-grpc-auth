@@ -1,0 +1,14 @@
+{
+  
+    "mongohost": "mongo-rpc:27017",
+    "mongocred":{
+        "authmechanism": "SCRAM-SHA-256",
+		"authsource":    "photogramm",
+		"username":      "dev",
+		"password":      "SuperSecretPassword"
+    },
+    "mongodb": "photogramm",
+    "jwtsecret": "34989fdf3df",
+    "port": "5005"
+    
+}

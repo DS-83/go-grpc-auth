@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+option go_package = "./";
+
+package api;
+
+// Simple JWT-based authorization gRPC service.
+service AuthService{
+
+    // Sign up user, based on username/password. Returns registered User.
+    rpc SignUp(SignUpRequest) returns (User){}
+
+    // Sign in user, based on username/password. Returns JWT.
+    rpc SignIn(SignInRequest) returns (SignInResponce){}
+
+    // Update user account (username or password).
+    // Also using in Sing up case, to update user id from business-logic DB.
+    rpc Update(UpdRequest) returns (User){}
+
+    // Delete authorized user and revoke token.
+    rpc Delete(DelRequest) returns (Response){}
+
+    // Parse JWT from string.
+    rpc ParseToken(ParseRequest) returns (User){}
+}
+
+
+message SignUpRequest{
+    string username = 1;
+    string password = 2;
+}
+
+message SignInRequest{
+    string username = 1;
+    string password = 2;
+}
+
+message SignInResponce{
+    string token = 1;
+}
+
+message UpdRequest{
+    User filtr = 1;
+    User upd = 2;
+    string token = 3;
+    bool sign_up = 4;
+}
+
+message DelRequest{
+    User user = 1;
+    string token = 2;
+}
+
+message ParseRequest{
+    string token = 1;
+}
+
+message User{
+    string id = 1;
+    int64 mysql_id = 2;         
+	string username = 3;
+	string password = 4;
+}
+
+message Response {
+    string response = 1;
+}

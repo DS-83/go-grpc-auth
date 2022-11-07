@@ -1,0 +1,23 @@
+
+services: 
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    container_name: "mongo-rpc"
+    restart: always
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/0_init.js # init scripts
+
+
+
+
+  auth_rpc:
+    build:
+      dockerfile: Dockerfile
+    container_name: "auth-rpc"
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "5005:5005"
