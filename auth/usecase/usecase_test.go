@@ -8,7 +8,9 @@ import (
 	"example-grpc-auth/models"
 	"reflect"
 	"testing"
+	"time"
 
+	"github.com/golang-jwt/jwt/v4"
 	mc "github.com/stretchr/testify/mock"
 )
 
@@ -17,6 +19,13 @@ var (
 	tokenRepo = new(mock.TokenRepoMock)
 	server    = new(pb.UnimplementedAuthServiceServer)
 )
+
+var testUser = &models.User{
+	ID:       "1",
+	MysqlID:  2,
+	Username: "test",
+	Password: mc.Anything,
+}
 
 func TestAuthServer_ParseToken(t *testing.T) {
 	type fields struct {
@@ -41,19 +50,19 @@ func TestAuthServer_ParseToken(t *testing.T) {
 			UnimplementedAuthServiceServer: server,
 			userRepo:                       userRepo,
 			tokenRepo:                      tokenRepo,
-			jwtKey:                         []byte("34989fdf3df"),
+			jwtKey:                         []byte("123"),
 		},
 		args: args{
 			ctx: context.Background(),
 			r: &pb.ParseRequest{
-				Token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7IklEIjoiNjM2ODI0NjVkNzczMTNhMDZhZDU0NWM2IiwiTXlzcWxJRCI6MzAsIlVzZXJuYW1lIjoidXNlcjQ5IiwiUGFzc3dvcmQiOiIkMmEkMDgkd1U3aHY3MVloMnBWamQ5V2VvejNqT0JNMmpaRktLZGd3bkxxVVJVdTRmUTdJaDk5QlQyQlMifSwiZXhwIjoxNjY3ODU4MTA5fQ.pm6YN0eP6Ez_esd4REXihXYuyUf8ABQ2a8_bFEOeu0g",
+				Token: createToken(testUser, []byte("123")),
 			},
 		},
 		want: &pb.User{
-			Id:       "63682465d77313a06ad545c6",
-			MysqlId:  30,
-			Username: "user49",
-			Password: "$2a$08$wU7hv71Yh2pVjd9Weoz3jOBM2jZFKKdgwnLqURUu4fQ7Ih99BT2BS",
+			Id:       "1",
+			MysqlId:  2,
+			Username: "test",
+			Password: mc.Anything,
 		},
 		wantErr: false,
 	}, {
@@ -62,7 +71,7 @@ func TestAuthServer_ParseToken(t *testing.T) {
 			UnimplementedAuthServiceServer: server,
 			userRepo:                       userRepo,
 			tokenRepo:                      tokenRepo,
-			jwtKey:                         []byte("34989fdf3df"),
+			jwtKey:                         []byte("123"),
 		},
 		args: args{
 			ctx: context.Background(),
@@ -387,4 +396,25 @@ func TestAuthServer_Update(t *testing.T) {
 			}
 		})
 	}
+}
+
+func createToken(u *models.User, k []byte) string {
+	// Token expiration time:
+	exp := time.Now().Add(86400 * time.Second)
+	// Create the Claims
+	claims := AuthClaims{
+		User: u,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(exp),
+		},
+	}
+	// Create jwt Token. Signing method HS256 uses a []byte key
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// Token string
+	ts, err := token.SignedString(k)
+	if err != nil {
+		return ""
+	}
+
+	return ts
 }
