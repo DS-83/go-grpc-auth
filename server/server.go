@@ -92,10 +92,11 @@ func initMongoDB(ctx context.Context) *mongo.Database {
 }
 
 func (a *App) Run(port string) error {
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	log.Printf("RPC server listen on ")
 	s := grpc.NewServer()
 
 	pb.RegisterAuthServiceServer(s, a.authServer)

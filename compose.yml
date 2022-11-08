@@ -8,6 +8,8 @@ services:
     restart: always
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/0_init.js # init scripts
+    networks:
+      - rest-api-back
 
 
 
@@ -21,3 +23,11 @@ services:
       - mongo
     ports:
       - "5005:5005"
+    networks:
+      - rest-api-back
+
+
+networks:
+  rest-api-back:
+    driver: bridge
+    external: true
