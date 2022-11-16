@@ -58,8 +58,8 @@ message ParseRequest{
 message User{
     string id = 1;
     int64 mysql_id = 2;         
-	string username = 3;
-	string password = 4;
+    string username = 3;
+    string password = 4;
 }
 
 message Response {
