@@ -31,6 +31,10 @@ const (
 	jwtKey              = key("jwtKey")
 )
 
+const (
+	mongoURI = "mongodb://%s/?maxPoolSize=20&w=majority"
+)
+
 type App struct {
 	authServer *usecase.AuthServer
 }
@@ -63,7 +67,7 @@ func NewApp() *App {
 
 func initMongoDB(ctx context.Context) *mongo.Database {
 	uri := fmt.Sprintf(
-		"mongodb://%s/?maxPoolSize=20&w=majority",
+		mongoURI,
 		ctx.Value(mongoHost).(string))
 
 	log.Println(uri)
